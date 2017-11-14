@@ -1,0 +1,137 @@
+﻿# -*- coding: utf-8 -*-
+
+Created on Sun Aug  6 17:51:11 2017
+
+@author: Karl
+
+* Plano de Trabalho
+	* Fazer um preamble para livro. Focar nisso.
+	* Mudar de \part para \chapter no arquivo.
+	* Utilizar openright e twoside
+	* Configurar para mostrar a coisa certa nos headers.
+	* Escrever um frontmatter, colocar um abstract, escrever um pouquinho sobre a comunidade.
+	* Colocar, temporariamente, o url da postagem, e o código dela, para localizar melhor.
+	
+	
+	* Fazer uma estatística dos usuários que comentam mais.
+	* Fazer uma nova lista, utilizando critérios mais restritos. Colocar somente depth de 3.
+	* 
+
+Coisas que faltam:
+
+    Cogitar a fazer:
+	* Colocar um clearpage depois das perguntas para colocar as perguntas em páginas novas?
+	* Criar um script que cria um banco de dados utilizando todas as postagens, sem distinção (todas a nível 0), com
+	  os seguintes dados.
+	        Código da postagem:
+	            Título
+	            Seção (Africa, Antiquity, Modern, etc)
+	            Autor (selecionar usando o primeiro, ou o mais longo, comentário)
+	            Autores adicionais (dos outros comentários selecionados)
+	            Limites
+	            Tipo (AMA, Normal)
+	            Contém Caracteres Diferentes? Chines, Japonês, Coreano, Árabe
+	            Pontuação
+	            Prefácio no Wiki (Para colocar as seções)
+	  Então, vão ser 2 dicionários, um dentro do outro, e depois vou salvar isso em JSON, e carregar, para o futuro.
+
+	Fazer, com importancia alta:
+	
+	* Verificar se será fácil colocar footnotes em todos os hiperlinks.
+	  Pesquisar direitinho no texto para achar o padrão correto.
+	  -- Utilizar o seguinte comando:
+	  \newcommand\fnurl[2]{%
+        \href{#2}{#1}\footnote{\url{#2}}%
+        }
+       Colocar no texto então, ao invés de href, \fnurl{Google}{www.google.com}
+
+	* Checar se a função que faz o escaping dos characters utiliza o seguinte:
+		\# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
+		-- Não funcionou direito. Deu um erro brutal. Checar novamente.
+	* Decidir, finalmente, como montar as coisas. Vai ser tudo dividido em partes, Africa, Antiquity, etc, 
+	  e cada uma com um índice? Ou vai ter um índice inicial com tudo? Aí vai ter que mudar, de modo com que
+	  ele monte um TOC colocando as partes. Pensar bem nas seções, subseções, etc.
+		
+	Atualmente, vem fazendo coisas sem sections, vai de chapter para subsection, sem nada no meio, a não ser, 
+	nos raros casos, quando tem uma entrada com #### nos links. Como acertar isso?
+		
+		Colocar isso no preamble torna possível colocar o part no TOC.
+		
+		\usepackage{tocloft}
+		\makeatletter
+		\@addtoreset{section}{part}
+		\makeatother
+		\newlength\mylen
+		\renewcommand\thepart{\arabic{part}}
+		\renewcommand\cftpartpresnum{Part~}
+		\settowidth\mylen{\bfseries\cftpartpresnum\cftpartaftersnum}
+		\addtolength\cftpartnumwidth{\mylen}
+	
+	
+	
+
+	* \pagestyle{headings}
+	* Em book, usar \frontmatter, \mainmatter
+	* usar fancyheaders
+	
+	
+	Importância média:
+    Separar os AMAs das outras postagens
+
+=======================O que deve constar no preamble=========================
+
+		
+Todos:
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+Para tirar o excesso no cabeçado de cada section, em books, colocar \renewcommand{\sectionmark}[1]{}
+
+
+
+------------------
+How to use the languages
+Arabic, Hindi, sanskrit, greek, thai
+\begin{Arabic}
+\end{Arabic}
+\begin{hindi}
+\end{hindi}
+\begin{sanskrit}
+\end{sanskrit}
+\begin{greek}
+\end{greek}
+\begin{thai}
+\end{thai}
+
+Chinese:
+(nothing)
+
+Japanese:
+{\japanesefont ...}
+Korean:
+{\koreanfont ...}
+----------------
+Example:
+\documentclass[12pt]{article}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguages{arabic,hindi,sanskrit,greek,thai} %% or other languages
+\setmainfont[Ligatures=TeX]{Noto Serif}
+\setsansfont[Ligatures=TeX]{Noto Sans}
+\setmonofont{Noto Mono}
+\newfontfamily\arabicfont[Script=Arabic]{Noto Naskh Arabic}
+\newfontfamily\devanagarifont[Script=Devanagari]{Noto Serif Devanagari}
+\newfontfamily\greekfont[Script=Greek]{GFS Artemisia}
+\newfontfamily\thaifont[Script=Thai]{Noto Serif Thai}
+
+\usepackage[space]{xeCJK}
+\setCJKmainfont{Noto Sans CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\newCJKfontfamily\japanesefont{IPAexMincho}
+\newCJKfontfamily\koreanfont{Baekmuk Batang}
+
+-------------------------------
+
+
+
