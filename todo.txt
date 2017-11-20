@@ -5,17 +5,15 @@ Created on Sun Aug  6 17:51:11 2017
 @author: Karl
 
 * Plano de Trabalho
-	* Fazer um preamble para livro. Focar nisso.
-	* Mudar de \part para \chapter no arquivo.
+	* Fazer um preamble para livro.
 	* Utilizar openright e twoside
 	* Configurar para mostrar a coisa certa nos headers.
 	* Escrever um frontmatter, colocar um abstract, escrever um pouquinho sobre a comunidade.
-	* Colocar, temporariamente, o url da postagem, e o código dela, para localizar melhor.
-	
+
 	
 	* Fazer uma estatística dos usuários que comentam mais.
 	* Fazer uma nova lista, utilizando critérios mais restritos. Colocar somente depth de 3.
-	* 
+	* Translate everything into English.
 
 Coisas que faltam:
 

@@ -2,7 +2,7 @@
 
 import webbrowser
 
-fhand = open ('wiki_antiquity_parsed.txt','r')
+fhand = open('wiki_antiquity_parsed.txt','r')
 
 counter = 0
 

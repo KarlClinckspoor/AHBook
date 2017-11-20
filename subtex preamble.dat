@@ -1,0 +1,37 @@
+%Preamble for the sub XeLaTeX file, for several language support
+\documentclass[float=false,crop=false]{standalone}
+\usepackage[subpreambles=true]{standalone}
+\usepackage{mdframed}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%%%%Languages%%%%
+\setmainlanguage{english}
+\setotherlanguages{arabic,hindi,sanskrit,greek,thai,russian,hebrew}
+
+%\setmainfont[Ligatures=TeX]{Latin Modern Roman}
+%\setsansfont[Ligatures=TeX]{Latin Modern Sans}
+%\setmonofont{Latin Modern Mono}
+
+%\newfontfamily\arabicfont[Script=Arabic]{Noto Naskh Arabic}
+%\newfontfamily\devanagarifont[Script=Devanagari]{Noto Serif Devanagari}
+%\newfontfamily\greekfont[Script=Greek]{GFS Artemisia}
+%\newfontfamily\thaifont[Script=Thai]{Noto Serif Thai}
+%\newfontfamily\cyrillicfont[Script=Cyrillic]{Noto Serif}
+%\newfontfamily\hebrewfont[Script=Hebrew]{Noto Serif Hebrew}
+
+%\usepackage[space]{xeCJK}
+%\setCJKmainfont{Noto Sans CJK SC}
+%\setCJKsansfont{Noto Sans CJK SC}
+%\setCJKmonofont{Noto Sans CJK SC}
+%\newCJKfontfamily\japanesefont{IPAexMincho}
+%\newCJKfontfamily\koreanfont{Baekmuk Batang}
+%%%%
+\usepackage{ulem}
+\usepackage{changepage}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{pdftitle={/r/AskHistorians},colorlinks=false}
+%\newcommand\fnurl[2]{\href{#2}{#1}\footnote{\url{#2}}}
+\begin{document}

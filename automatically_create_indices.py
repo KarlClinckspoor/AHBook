@@ -47,10 +47,9 @@ def check_foreign_language(string):
     return foreign_languages
 
 
-# todo: pensar em fazer isso, mas fazendo uma lista com o comprimento de todos e pegar os 10 maiores, e depois
-#       preencher com o restante.
-# todo: Pensar em modificar isso para remover o global good_ids. Quem sabe colocar ele como um argumento, e retornar ele?
-# todo: caso não encontre nenhum, colocar o comentário mais comprido.
+# todo: Think about doing some 'statistics' on a submission and then select the 'cream of the crop'.
+# Or perhaps just get the 10 largest comments, and then fill in the rest.
+# todo: In case no comments get selected, select the longest one.
 def get_good_comment_ids(comments):
     global good_ids
     global interesting_ids
@@ -67,9 +66,9 @@ def get_good_comment_ids(comments):
 
     for comment in comments:
         comment_lengths[key_attributions[comment.id]] = len(comment.body)
-        if len(interesting_ids) > MAX_COMMENTS:  # limita o número de comentários.
+        if len(interesting_ids) > MAX_COMMENTS:
             break
-        if comment.depth > MAX_DEPTH:  # limita o depth dos comentários
+        if comment.depth > MAX_DEPTH:
             continue
         if (comment.score > MIN_SCORE) and (len(comment.body) > MIN_LENGTH):
             good_ids.append(
@@ -78,7 +77,7 @@ def get_good_comment_ids(comments):
                                    len(comment.body)))
             foreign_lang.append(check_foreign_language(comment.body))
 
-            # Checar se há uma linha contínua do comentário atual até o root
+            # Checks if there is a continuous line from the present comment to the root comment. If not, populates it.
             temp_comment = comment
             for item in good_ids:
                 if temp_comment.is_root:
