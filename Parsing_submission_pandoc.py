@@ -4,186 +4,6 @@ import pypandoc
 #import re
 import regex as re
 
-# Characters with special meaning in LaTeX: & % $ # _ { } ~ ^ \
-def FindForbiddenChars (string):
-    """LaTeX has some problems when trying to write files with these characters, so this script will \
-    correctly escape them, before pypandoc conversion."""
-    # forbid_char = ['[&]','[%]','[$]','[#]','[_]','[{]','[}]','[~]']
-
-    # easyforbids2 = re.compile(r'&|%|\$|#|_|{|}|~|\^|\\')
-    easyforbids = re.compile(r'[&%$#_{}~\^\\]')
-
-    # New definition: \# \$ \% \^{} \& \_ \{ \} \~{} \textbackslash
-
-    #easyforbids = re.compile(r'[#$%&_{}]')
-    #add_forbids = re.compile(r'[\^~]')
-    #back_forbid = re.compile(r'[\\]')
-
-    pipe = re.compile(r'[|]')
-    string = pipe.sub("\\textbar ", string)
-
-    #string = back_forbid.sub(r"\\textbackslash ", string)
-    string = easyforbids.sub(r"\\\g<0>", string)
-    #string = add_forbids.sub(r"\\\g<0>{}", string)
-
-    return string
-
-
-# teststring = r'[In our inaugural installment](http://www.reddit.com/r/AskHistorians/comments/zu5si/theory_thursdays_defining_history/), ' \
-#              'we opened with a discussion how history should be defined. We followed that with a discussion of the fellow who has been called both ' \
-#              'the "father of history" and the "father of lies," ' \
-#              '[Herodotus](http://www.reddit.com/r/AskHistorians/comments/1071mf/theory_thursdays_herodotus_and_the_invention_of/). ' \
-#              'Most recently, we discussed several other important ' \
-#              '[ancient historians](http://www.reddit.com/r/AskHistorians/comments/10jxvc/theory_thursdays_ancient_and_medieval_historians/).'
-# URL_no_s = r'http://www.google.com/'
-# URL_no_http = r'www.google.com/'
-# URL_no_slash = r'www.google.com'
-# URL_complete = r'https://www.google.com/'
-# URL_long = r'http://www.reddit.com/r/AskHistorians/comments/zu5si/theory_thursdays_defining_history/'
-# correctstring = r'[In our inaugural installment](http://www.reddit.com/r/AskHistorians/comments/zu5si/theory_thursdays_defining_history/)'
-# tests = [teststring, URL_no_s, URL_no_http, URL_no_slash, URL_complete, correctstring]
-
-def FindStrayHyperlinks (string): # achar formação errada de html ou colocar o link em (link)
-
-    """What we we will be looking for is the following:
-
-    Number 1: More important, naked links. Things such as
-        http://www.google.com
-        https://www.google.com
-        www.google.com
-        https://www.google.com./search?q=test&oq=test&aqs=chrome..69i57j69i65j69i61.2512j0j
-
-        The pattern must reflect all of these possibilities and return: [LINK](url)
-    Number 2: Erroneous links. Markdown treats [text](url) as the correct way of indicating an URL. So, if [] and ()
-              were to be switched, the code would not work properly. For example:
-              (www.google.com)[Google] instead of [Google](www.google.com)
-
-              or
-
-              (Google)[www.google.com]
-        The pattern must find the incorrect uses and return them correctly. This one is less important.
-
-    At the moment, this function can only find and substitute rogue links that aren't correctly placed.
-
-    Note: This fixed links in Markdown, before conversion.
-    """
-
-    # url_pattern = 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
-    # url_pattern = 'https?:\/\/(?P<url>(?P<www>www)\.\S{2,300}\.\w{2,3}\/?(?P<fim>\S{2,300}))'
-    # url_pattern2 = '((https?:\/\/)?(www)\.\S{2,100}\.\w{2,3}(\/)?(\S{2,300}(\/)?)?(\/?))'
-    # url_pattern3 = '(?<!\]\()((https?:\/\/)?(www)\.\S{2,100}\.\w{2,3}(\/)?(\S{2,300}(\/)?)?(\/?))'
-
-    # Looks for http and switches to https
-    find_http_pattern = r'http:\/\/'
-    http_to_https_fix = re.compile(find_http_pattern)
-    string = http_to_https_fix.sub('https://', string)
-
-    # Looks for www and adds https before it.
-    alone_www_fix_pattern = r'(?<!https://)((www)\.\S{2,100}\.\w{2,3}(\/)?(\S{2,300}(\/)?)?(\/?))'
-    alone_www_fix = re.compile(alone_www_fix_pattern)
-    string = alone_www_fix.sub('https://\g<1>', string)
-
-    # Finds URLs that are alone (that is, not preceded by '](' and adds something to make them parseable by pandoc.
-    # Supposedly does not require the ? after https, as there will be no http left.
-    url_pattern4 = '(?<!\]\()(https?:\/\/(www)\.\S{2,100}\.\w{2,3}(\/)?(\S{2,300}(\/)?)?(\/?))'
-    Case1 = re.compile(url_pattern4)
-    string = Case1.sub('[link](\g<1>)', string)
-
-    return string
-
-
-def FillEmptyHyperlinksInLaTeX(string):
-    """Sometimes LaTeX will find things with empty strings, {}, and will ignore the URL in place. When this happens,
-    the URL is lost. Therefore, it is better to add something, like -link, in that place, so that the URL is
-    accessible again. Takes a LaTeX string and returns it with filled curly brackets."""
-    href_pattern = r'(\\href{.*?}){}'
-    substitution = re.compile(href_pattern)
-    string = substitution.sub('\g<1>{ - link }', string)
-
-    #href_pattern = r'(\\fnurl{Link}{.*?}){}'
-    #substitution = re.compile(href_pattern)
-    #string = substitution.sub('\g<1>{ - link }', string)
-    return string
-
-
-def Change_href_to_fnurl(string):
-    """Changes all the instances of href to fnurl, so that the urls go into the footnotes
-    Current syntax of the command:
-    \fnurl{text}{url}
-    to compare, href is:
-    \href{url}{text}
-    """
-
-    #string = r'\href{https://en.wikipedia.org/wiki/Ethiopia\#Religion}{30\% Muslim}'
-    href_to_fnurl = re.compile(r'\\href{(.*?)}{(.*?)}')
-    string = href_to_fnurl.sub(r'\\fnurl{\g<2>}{\g<1>}', string)
-    #print(string)
-
-    #string = '\href{https://en.wikipedia.org/wiki/Ethiopia\#Religion}{30\% Muslim}'
-    #simple_href_to_fnurl = re.compile(r'href')
-    #string = simple_href_to_fnurl.sub(r'fnurl', string)
-    #print(string)
-
-    return string
-
-
-def EncapsulateScripts(string):
-    """It is better to encapsulate the words in different scripts for XeLaTeX. It is possible, therefore, to use a
-    less comprehensive main font, select which fonts are going to be used for the additional scripts and to avoid
-    errors during compilation."""
-    # \p{InGreek_and_Coptic}: U+0370–U+03FF
-    # \p{InCyrillic}: U+0400–U+04FF
-    # \p{InCyrillic_Supplementary}: U+0500–U+052F
-    # \p{InHebrew}: U+0590–U+05FF
-    # \p{InArabic}: U+0600–U+06FF
-
-    Greek = re.compile('[\p{Greek}]{1,100}')
-    Cyrillic = re.compile('[\p{Cyrillic}]{1,100}')
-    Hebrew = re.compile('[\p{Hebrew}]{1,100}')
-    Arabic = re.compile('[\p{Arabic}]{1,100}')
-    Jap1 = re.compile('[\p{Han}\p{Katakana}\p{Hiragana}]{1,100}')
-    # Jap2 = re.compile('[\p{Katakana}]{1,100}')
-    # Jap3 = re.compile('[\p{Hiragana}]{1,100}')
-    Korean = re.compile('[\p{Hangul}]{1,100}')
-    # Chinese = re.compile('[\p{Han}]{1,100}')
-    HindiSanskrit = re.compile('[\p{Devanagari}]{1,100}')
-
-    string = Greek.sub(r'\\begin{greek}\g<0>\end{greek}', string)
-    string = Cyrillic.sub(r'\\begin{russian}\g<0>\end{russian}', string)
-    string = Hebrew.sub(r'\\begin{hebrew}\g<0>\end{hebrew}', string)
-    string = Arabic.sub(r'\\begin{Arabic}\g<0>\end{Arabic}', string)
-    string = Jap1.sub(r'{\japanesefont \g<0>}', string)
-    string = Korean.sub(r'{\koreanfont \g<0>}', string)
-    string = HindiSanskrit.sub(r'\\begin{sanskrit}\g<0>\end{sanskrit}', string)
-
-    return string
-
-
-def ChangeTitlestoSubtitles(string):
-    """Finds text in latex files with '#' and changes them to '###' to avoid messing with the formatting"""
-    title = re.compile('\n\n# ')
-    sub = re.compile('\n\n## ')
-
-    #string = title.sub('\n\n### ', string)
-    #string = sub.sub('\n\n#### ', string)
-    #string = title.sub(r'\')
-    return string
-
-
-def ChangeSectionToSubSub(string):
-    """Sometimes comments get creative and use # to organize the text. This would get translated as \\section,
-    but it is better to modify it so that it becomes a subsub section."""
-    section = re.compile(r'\\section')
-    string = section.sub(r'\\subsection', string)
-    return string
-
-
-def ChangeSectionToBF(string):
-    """Workaround2, not really good"""
-    section = re.compile(r'\section{(.*?)}')
-    string = section.sub(r'\begin{LARGE}\textbf{\g<0>}\end{LARGE}')
-    return string
-
 
 def Parse_Forest(replies, fhand):
     """A recursive function that will go start with a comment and go through all of its replies, and write the \
@@ -404,9 +224,10 @@ def WriteBody (comment, fhand):
     return
 
 
-#%% Not used at the moment, replaced by the limited version
 def Parse_submission(submission, destination_dir, sub_id):
-    """Initially used to go through a submission and write the comments for it. Deprecated"""
+    """Initially used to go through a submission and write ALL the comments from it. Requires an internet connection
+    as it pulls data directly from reddit."""
+
     destination_filename = sub_id+'.tex'
     '''
     destination_filepath = os.path.join(destination_dir,destination_filename)
@@ -430,10 +251,10 @@ def Parse_submission(submission, destination_dir, sub_id):
     fhand.close()
 
 
-#%%
 def Parse_submissionSub(submission, destination_dir, submission_id, limitation):
-    """Creates a file that contains the submission id, begins by adding the preamble and header and then\
-     goes through every comment in the limitation list, which contains the codes for each interesting comment."""
+    """Creates a file that has the same name as the submission id, begins by adding the preamble and header and then\
+     goes through every comment in the limitation list, which contains the codes for each interesting comment.
+     This list consists of a sequence of numbers that are added after the submission URL in the text file."""
     destination_filename = submission_id + '.tex'
     #print('Debug: Limits = ', limitation)
     '''

@@ -19,6 +19,7 @@ reddit = Auth.CreateReddit()
 files = glob.glob('wiki_africa_parsed2.txt')
 #files = glob.glob('*.txt')
 counter = 0
+
 for file in files:
     with open(file, 'r') as source:
         # links, limits = [], []
